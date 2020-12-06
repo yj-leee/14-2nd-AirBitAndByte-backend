@@ -27,7 +27,8 @@ media
 # Byte-compiled / optimized / DLL files
 *.py[cod]
 *$py.class
-
+my_db.py
+*.sql
 # C extensions
 *.so
 
