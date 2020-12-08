@@ -1,5 +1,16 @@
-from django.db import models
+from django.db   import models
+
 from user.models import TimeStampedModel
+
+
+class Category(models.Model):
+    name = models.CharField(max_length=100)
+
+    class Meta:
+        db_table = 'categories'
+
+    def __str__(self):
+        return self.name
 
 class Type(models.Model):
     name = models.CharField(max_length=100)
@@ -15,22 +26,25 @@ class Property(TimeStampedModel):
     title           = models.CharField(max_length=100)
     content         = models.TextField()
     capacity        = models.IntegerField()
-    price           = models.DecimalField(max_digits=10, decimal_places=2)
-    price_per_guest = models.DecimalField(max_digits=7, decimal_places=3)
-    longitude       = models.DecimalField(max_digits=11, decimal_places=3)
-    latitude        = models.DecimalField(max_digits=11, decimal_places=3)
+    price           = models.DecimalField(max_digits=12, decimal_places=2)
+    price_per_guest = models.DecimalField(max_digits=12, decimal_places=3)
+    longitude       = models.DecimalField(max_digits=10, decimal_places=6)
+    latitude        = models.DecimalField(max_digits=10, decimal_places=6)
     type            = models.ForeignKey('Type', on_delete=models.CASCADE, null=True)
-    property_image  = models.ForeignKey('PropertyImage', on_delete=models.CASCADE)
+    category        = models.ForeignKey('Category', on_delete=models.CASCADE)
     host            = models.ForeignKey('Host', on_delete=models.CASCADE)
     refund          = models.ForeignKey('Refund', on_delete=models.CASCADE)
-    country         = models.ForeignKey('map.Country', on_delete=models.CASCADE)
-    province        = models.ForeignKey('map.Province', on_delete=models.CASCADE)
-    city            = models.ForeignKey('map.City', on_delete=models.CASCADE)
-    district        = models.ForeignKey('map.District', on_delete=models.CASCADE)
-    street          = models.ForeignKey('map.Street', on_delete=models.CASCADE)
+    country         = models.ForeignKey('Country', on_delete=models.CASCADE)
+    province        = models.ForeignKey('Province', on_delete=models.CASCADE)
+    city            = models.ForeignKey('City', on_delete=models.CASCADE)
+    district        = models.ForeignKey('District', on_delete=models.CASCADE)
+    street          = models.CharField(max_length=1000)
     size            = models.ManyToManyField('Size', through='PropertySizes')
     attribute       = models.ManyToManyField('Attribute', through='PropertyAttributes')
     facility        = models.ManyToManyField('Facility', through='PropertyFacilities')
+    rule            = models.ManyToManyField('Rule', through='PropertyRules')
+    safety          = models.ManyToManyField('Safety', through='PropertySafeties')
+
 
     class Meta:
         db_table = 'properties'
@@ -40,7 +54,8 @@ class Property(TimeStampedModel):
 
 
 class PropertyImage(models.Model):
-    url = models.URLField(max_length=1000)
+    property = models.ForeignKey('Property', on_delete=models.CASCADE)
+    url      = models.URLField(max_length=1000)
 
     class Meta:
         db_table = 'property_images'
@@ -165,7 +180,7 @@ class PropertyRules(models.Model):
     rule     = models.ForeignKey('Rule', on_delete=models.CASCADE)
 
     class Meta:
-        db_table = 'properties_rules'
+        db_table = 'property_rules'
 
 
 class Comment(TimeStampedModel):
@@ -223,18 +238,6 @@ class District(models.Model):
 
     class Meta:
         db_table  = 'districts'
-
-    def __str__(self):
-        return self.name
-
-
-class Street(models.Model):
-    name       = models.CharField(max_length=200)
-    latitude   = models.DecimalField(max_digits=10, decimal_places=6)
-    longitude  = models.DecimalField(max_digits=10, decimal_places=6)
-
-    class Meta:
-        db_table  = 'streets'
 
     def __str__(self):
         return self.name

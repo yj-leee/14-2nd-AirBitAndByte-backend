@@ -14,7 +14,6 @@ class Reservation(TimeStampedModel):
     class Meta:
         db_table = 'reservations'
 
-
 class Status(models.Model):
     name = models.CharField(max_length=200)
 
@@ -24,24 +23,12 @@ class Status(models.Model):
     def __str__(self):
         return self.name
 
-
-
 class Payment(TimeStampedModel):
     user           = models.ForeignKey('user.User', on_delete=models.CASCADE)
     reservation    = models.ForeignKey('Reservation', on_delete=models.CASCADE)
-    payment_method = models.ForeignKey('Payment_method', on_delete=models.CASCADE)
+    payment_method = models.CharField(max_length=1000)
     uuid           = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     status         = models.ForeignKey('Status', on_delete=models.CASCADE)
 
     class Meta:
         db_table = 'payments'
-
-
-class PaymentMethod(TimeStampedModel):
-    card_number = models.CharField(max_length=200)
-    expire_date = models.DateTimeField(auto_now_add=False)
-    card_holder = models.CharField(max_length=200)
-    cvc         = models.CharField(max_length=200)
-
-    class Meta:
-        db_table = 'payment_method'

@@ -9,11 +9,11 @@ class TimeStampedModel(models.Model):
 
 class User(TimeStampedModel):
     email        = models.EmailField()
-    phone_number = models.CharField(max_length=200)
+    birthday     = models.DateField(auto_now_add=False, null=True)
     image_url    = models.URLField(max_length=1000, null=True)
-    first_name   = models.CharField(max_length=200)
-    last_name    = models.CharField(max_length=200)
-    password     = models.CharField(max_length=1000)
+    given_name   = models.CharField(max_length=200, null=True)
+    family_name  = models.CharField(max_length=200, null=True)
+    password     = models.CharField(max_length=1000, null=True)
 
     class Meta:
         db_table = 'users'
