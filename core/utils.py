@@ -10,6 +10,7 @@ from my_settings        import SECRET_KEY_JWT, ALGORITHM
 from user.models        import User
 from property.models    import Property
 from reservation.models import Reservation
+from django.db.models   import Count, Avg
 
 def login_decorator(func):
     def wrapper(self, request, *args, **kwargs):
@@ -21,11 +22,13 @@ def login_decorator(func):
             payload      = jwt.decode(access_token, SECRET_KEY_JWT, algorithm=ALGORITHM)
             user         = User.objects.get(id=payload['id'])
             request.user = user
-        except jwt.exceptions.DecodeError:
-            pass
 
+        except jwt.exceptions.DecodeError:
+            request.user=False
+            return func(self, request, *args, **kwargs)
         except User.DoesNotExist:
-            return JsonResponse({'message': 'INVALID_USER'}, status=400)
+            request.user=False
+            return func(self, request, *args, **kwargs)
 
         return func(self, request, *args, **kwargs)
 
@@ -41,8 +44,15 @@ def validate_password(password):
 def validate_phone_number(phone_number):
     return re.match('^[0-9]{3}-[0-9]{3,4}-[0-9]{4}$', phone_number)
 
-#only works if date format(2020-02-06)
-def dateParser(date):
+def validate_date_format(date):
+    return re.match('^[0-9]{4}-[0-9]{2}-[0-9]{2}$', date)
+
+def validate_check_in_out_date(check_in, check_out):
+    if check_out <= check_in:
+        return False
+    return True
+
+def date_parser(date):
     date_list = date.split('-')
     year      = int(date_list[0])
     month     = int(date_list[1])
@@ -50,16 +60,28 @@ def dateParser(date):
     date_time = datetime(year, month, day)
     return date_time
 
-def checkAvailability(property, check_in, check_out):
+def check_availability(property, check_in, check_out):
     bookings      = Reservation.objects.filter(property_id=property.id)
     check_in      = datetime.date(check_in)
     check_out     = datetime.date(check_out)
-    avalilability = []
+    availability = []
     for booking in bookings:
         #   check_in: 2020-01-09,   check_out: 2020-01-11
         # b_check_in: 2020-01-05, b_check_out: 2020-01-08
         if booking.check_in > check_out or booking.check_out < check_in:
-            avalilability.append(True)
+            availability.append(True)
         else:
-            avalilability.append(False)
-    return all(avalilability)
+            availability.append(False)
+    return all(availability)
+
+def validate_review_set(property):
+    if property.review_set.exists():
+        sum = property.review_set.aggregate(cleanliness=Avg('cleanliness'))['cleanliness'] +\
+            property.review_set.aggregate(communication=Avg('communication'))['communication'] +\
+            property.review_set.aggregate(check_in=Avg('check_in'))['check_in'] +\
+            property.review_set.aggregate(accuracy=Avg('accuracy'))['accuracy'] +\
+            property.review_set.aggregate(location=Avg('location'))['location'] +\
+            property.review_set.aggregate(affordability=Avg('affordability'))['affordability']
+        result = sum/6
+        return result
+    return False

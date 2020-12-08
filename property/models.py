@@ -241,13 +241,3 @@ class District(models.Model):
 
     def __str__(self):
         return self.name
-
-
-class Street(models.Model):
-    name       = models.CharField(max_length=200)
-
-    class Meta:
-        db_table  = 'streets'
-
-    def __str__(self):
-        return self.name
