@@ -4,7 +4,7 @@ import  requests
 from    django.views     import  View
 from    django.http      import  JsonResponse
 
-from    django.db.models import Q, Count
+from    django.db.models import Q, Count, Max
 
 from    .models          import  (Property,PropertyImage,Host,Type,Attribute,PropertyAttributes,
                                   Refund,Size,PropertySizes,Facility,PropertyFacilities,Review,
@@ -20,6 +20,8 @@ class MainListView(View):
         facility  = request.GET.get("facility")
         category  = request.GET.get("category")
         rule      = request.GET.get("rule")
+        min_price = request.GET.get("min_price", 0)
+        max_price = request.GET.get("max_price", 0)
 
         q = Q()
 
@@ -38,11 +40,13 @@ class MainListView(View):
         if rule:
             q &= Q(rule__name=rule)
 
+        if min_price and max_price:
+            q &= Q(price__range=(min_price,max_price))
+
         queryset = Property.objects.filter(q)
 
         if review:
             queryset = queryset.annotate(num_reviews=Count('review')).order_by('-num_reviews')
-
         result = [{
                 'title'            : property.title,
                 'Price'            : property.price,
