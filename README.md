@@ -68,7 +68,7 @@
 
 ## Modeling
 
-<img src='public/airBnb_modeling.png' alt='logo'>
+<img src='public/abb_model.png' alt='logo'>
 
 ## 소감 및 후기
 
