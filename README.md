@@ -65,6 +65,27 @@
 
 ## EndPoint
 
+[get] PropertyListView       :      /property' <br>
+
+[get]  PropertyListView       :    /propert/\<int:property_id\> <br>
+
+[get] ReservationListView      :    /reservation <br>
+
+[post] ReservationListView      :   /reservation <br>
+
+[patch] PaymentView              :  /reservation/\<int:reservation_id\> <br>
+
+[post] SocialLoginView            : /socialLogin
+
+[post] RegisterView                : /register
+
+[post] LoginView                   : /login
+
+[post] bookmarkView                : /bookmark
+
+[delete] bookmarkView              : /bookmark
+
+
 
 ## Modeling
 
