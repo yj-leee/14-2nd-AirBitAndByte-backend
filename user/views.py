@@ -83,12 +83,9 @@ class BookmarkView(View):
     @login_decorator
     def post(self, request):
         try:
-            print(request.user,'666666666666666666666666666666666666666')
             if request.user:
                 data = json.loads(request.body)
-                print('------------------', data['propertyId'])
                 bookmark, flag = Bookmark.objects.get_or_create(property_id=data['propertyId'], user_id=request.user.id)
-                print('wowowowowowowowowowowo')
                 if flag:
                     return JsonResponse({'message':'Success'}, status=200)
             return JsonResponse({'message':'Invaild_user'}, status=400)
