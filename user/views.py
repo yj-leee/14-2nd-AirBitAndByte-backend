@@ -104,3 +104,4 @@ class BookmarkView(View):
             return JsonResponse({'message':'Invaild_user'}, status=400)
         except KeyError:
             return JsonResponse({'message':'KeyError'}, status=400)
+        test
