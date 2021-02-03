@@ -16,7 +16,6 @@ from google.auth.transport import requests
 class SocialLoginView(View):
 
     def post(self, request):
-
         try:
             #CLIENT_ID  = request.headers.get('client', None)
             token        = request.headers.get('token', None)
@@ -32,18 +31,19 @@ class SocialLoginView(View):
             return JsonResponse({'message':'Invalid_token'}, status=400)
 
 
-class RegisterView(View):
+class SignUpView(View):
 
     def post(self, request):
-
         try:
             data = json.loads(request.body)
+
             if not validate_email(data['email']):
                 return JsonResponse({'message':'Invalid_mail'}, status=400)
             if not validate_password(data['password']):
                 return JsonResponse({'message':'Invalid_password'}, status=400)
             if User.objects.filter(email=data['email']).exists():
                 return JsonResponse({'message':'User_already_exist'}, status=400)
+
             password        = data['password']
             hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
             cryped_password = hashed_password.decode('utf-8')
@@ -60,8 +60,7 @@ class RegisterView(View):
         except KeyError:
             return JsonResponse({'message':'KeyError'}, status=400)
 
-
-class LoginView(View):
+class LogInView(View):
 
     def post(self, request):
         try:
@@ -72,38 +71,35 @@ class LoginView(View):
                 access_token = token.decode('utf-8')
                 return JsonResponse({'accessToken': access_token}, status=200)
             return JsonResponse({'message':'Invalid_user'}, status=400)
+
         except KeyError:
             return JsonResponse({'message':'KeyError'}, status=400)
         except User.DoesNotExist:
             return JsonResponse({'message':'Does_not_exist'}, status=400)
 
-
 class BookmarkView(View):
 
-    @login_decorator
+    @login_decorator(required=True)
     def post(self, request):
         try:
-            print(request.user,'666666666666666666666666666666666666666')
-            if request.user:
-                data = json.loads(request.body)
-                print('------------------', data['propertyId'])
-                bookmark, flag = Bookmark.objects.get_or_create(property_id=data['propertyId'], user_id=request.user.id)
-                print('wowowowowowowowowowowo')
-                if flag:
-                    return JsonResponse({'message':'Success'}, status=200)
-            return JsonResponse({'message':'Invaild_user'}, status=400)
+            data = json.loads(request.body)
+            bookmark, flag = Bookmark.objects.get_or_create(property_id=data['propertyId'], user_id=request.user.id)
+            if flag:
+                return JsonResponse({'message':'Success'}, status=200)
+            return JsonResponse({'message':'Invaild_command'}, status=400)
+
         except KeyError:
             return JsonResponse({'message':'KeyError'}, status=400)
 
-    @login_decorator
+    @login_decorator(required=True)
     def delete(self, request):
         try:
-            if request.user:
-                data = json.loads(request.body)
-                if Bookmark.objects.filter(property_id=data['propertyId'], user_id=request.user.id).exists():
-                    bookmark_query = Bookmark.objects.get(property_id=data['propertyId'], user_id=request.user.id)
-                    bookmark_query.delete()
-                    return JsonResponse({'message':'Success'}, status=200)
-            return JsonResponse({'message':'Invaild_user'}, status=400)
+            data = json.loads(request.body)
+            if Bookmark.objects.filter(property_id=data['propertyId'], user_id=request.user.id).exists():
+                bookmark_query = Bookmark.objects.get(property_id=data['propertyId'], user_id=request.user.id)
+                bookmark_query.delete()
+                return JsonResponse({'message':'Success'}, status=200)
+            return JsonResponse({'message':'bookmark_does_not_exist'}, status=400)
+
         except KeyError:
             return JsonResponse({'message':'KeyError'}, status=400)
