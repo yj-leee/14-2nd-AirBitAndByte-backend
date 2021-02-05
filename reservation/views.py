@@ -10,7 +10,7 @@ from property.models    import Property
 
 class ReservationView(View):
 
-    @login_decorator
+    @login_decorator(required=True)
     def get(self, request):
         try:
             if not request.user:
@@ -43,11 +43,9 @@ class ReservationView(View):
         except KeyError:
             return JsonResponse({'message':'KeyError'}, status=400)
 
-    @login_decorator
+    @login_decorator(required=True)
     def post(self, request):
         try:
-            if not request.user:
-                return JsonResponse({'message':'Invalid_user'}, status=400)
             data            = json.loads(request.body)
             check_in        = date_parser(data['checkIn'])
             check_out       = date_parser(data['checkOut'])
@@ -75,13 +73,11 @@ class ReservationView(View):
 
 class PaymentView(View):
 
-    @login_decorator
+    @login_decorator(required=True)
     def patch(self, request, reservation_id):
         try:
-            if not request.user:
-                return JsonResponse({'message':'Invalid_user'}, status=400)
-            reservation    = Reservation.objects.get(id=reservation_id)
-            reservation.status_id= 2
+            reservation           = Reservation.objects.get(id=reservation_id)
+            reservation.status_id = 2
             reservation.save()
             return JsonResponse({'message':'Success'}, status=200)
 
