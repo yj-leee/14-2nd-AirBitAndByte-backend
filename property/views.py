@@ -11,7 +11,7 @@ from core.utils       import login_decorator, date_parser, check_availability, v
 
 class PropertyListView(View):
 
-    @login_decorator
+    @login_decorator(required=False)
     def get(self, request):
         try:
             sort         = request.GET.get('sort', '0')
@@ -119,7 +119,7 @@ class PropertyListView(View):
 
 class PropertyDetailView(View):
 
-    @login_decorator
+    @login_decorator(required=False)
     def get(self, request, property_id):
         try:
 

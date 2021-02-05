@@ -57,12 +57,8 @@ def date_parser(date):
 
 def check_availability(property, check_in, check_out):
     bookings      = Reservation.objects.filter(property_id=property.id)
-    check_in      = datetime.date(check_in)
-    check_out     = datetime.date(check_out)
     availability = []
     for booking in bookings:
-        #   check_in: 2020-01-09,   check_out: 2020-01-11
-        # b_check_in: 2020-01-05, b_check_out: 2020-01-08
         if booking.check_in > check_out or booking.check_out < check_in:
             availability.append(True)
         else:
