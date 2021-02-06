@@ -57,6 +57,8 @@ def date_parser(date):
 
 def check_availability(property, check_in, check_out):
     bookings      = Reservation.objects.filter(property_id=property.id)
+    check_in      = datetime.date(check_in)
+    check_out     = datetime.date(check_out)
     availability = []
     for booking in bookings:
         if booking.check_in > check_out or booking.check_out < check_in:
@@ -66,13 +68,22 @@ def check_availability(property, check_in, check_out):
     return all(availability)
 
 def validate_review_set(property):
+
     if property.review_set.exists():
-        sum = property.review_set.aggregate(cleanliness=Avg('cleanliness'))['cleanliness'] +\
-            property.review_set.aggregate(communication=Avg('communication'))['communication'] +\
-            property.review_set.aggregate(check_in=Avg('check_in'))['check_in'] +\
-            property.review_set.aggregate(accuracy=Avg('accuracy'))['accuracy'] +\
-            property.review_set.aggregate(location=Avg('location'))['location'] +\
-            property.review_set.aggregate(affordability=Avg('affordability'))['affordability']
-        result = sum/6
-        return result
+        rate = {}
+        rate['propertyCleanliness']   = property.review_set.aggregate(cleanliness=Avg('cleanliness'))['cleanliness']
+        rate['propertyCommunication'] = property.review_set.aggregate(communication=Avg('communication'))['communication']
+        rate['propertyCheckIn']       = property.review_set.aggregate(check_in=Avg('check_in'))['check_in']
+        rate['propertyAccuracy']      = property.review_set.aggregate(accuracy=Avg('accuracy'))['accuracy']
+        rate['propertyLocation']      = property.review_set.aggregate(location=Avg('location'))['location']
+        rate['propertyAffordability'] = property.review_set.aggregate(affordability=Avg('affordability'))['affordability']
+
+
+        rate['propertyRate'] = (rate['propertyCleanliness'] +\
+                               rate['propertyCommunication'] +\
+                               rate['propertyCheckIn'] +\
+                               rate['propertyAccuracy'] +\
+                               rate['propertyLocation'] +\
+                               rate['propertyAffordability'])/6
+        return rate
     return False
