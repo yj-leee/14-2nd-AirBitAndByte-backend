@@ -45,7 +45,7 @@ class PropertyListView(View):
             search          = request.GET.get('search', None)
             conditions      = {}
             available_rooms = []
-
+            print(1)
             query  = Q()
             if search:
                 query  &=\
@@ -143,16 +143,7 @@ class PropertyDetailView(View):
             context = {
                 'propertyId'     : property.id,
                 'propertyName'   : property.title,
-                'rate'           : {
-                    'propertyRate'         : validate_review_set(property),
-                    'propertyCleanliness'  : property.review_set.aggregate(Avg('cleanliness'))['cleanliness__avg'],
-                    'propertyCommunication' : property.review_set.aggregate(Avg('communication'))['communication__avg'],
-                    'propertyCheckIn'       : property.review_set.aggregate(Avg('check_in'))['check_in__avg'],
-                    'propertyAccuracy'      : property.review_set.aggregate(Avg('accuracy'))['accuracy__avg'],
-                    'propertyLocation'      : property.review_set.aggregate(Avg('location'))['location__avg'],
-                    'propertyAffordability' : property.review_set.aggregate(Avg('affordability'))['affordability__avg']
-                },
-
+                'rate'           : validate_review_set(property),
                 'propertyImages' : [image.url for image in property.propertyimage_set.all()],
                 'country'        : property.country.name,
                 'province'       : property.province.name,
