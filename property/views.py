@@ -45,6 +45,7 @@ class PropertyListView(View):
             search          = request.GET.get('search', None)
             conditions      = {}
             available_rooms = []
+
             query  = Q()
             if search:
                 query  &=\
