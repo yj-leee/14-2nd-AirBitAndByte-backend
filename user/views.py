@@ -17,7 +17,6 @@ class SocialLoginView(View):
 
     def post(self, request):
         try:
-            #CLIENT_ID  = request.headers.get('client', None)
             token        = request.headers.get('token', None)
             data         = id_token.verify_oauth2_token(token, requests.Request())
             email        = data['email']
